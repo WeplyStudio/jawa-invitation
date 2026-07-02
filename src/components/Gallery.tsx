@@ -1,0 +1,209 @@
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { X, ChevronLeft, ChevronRight, Heart } from "lucide-react";
+
+interface GalleryImage {
+  id: number;
+  url: string;
+  caption: string;
+}
+
+const galleryImages: GalleryImage[] = [
+  {
+    id: 1,
+    url: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800",
+    caption: "Cinta Terpatri dalam Keheningan",
+  },
+  {
+    id: 2,
+    url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=800",
+    caption: "Langkah Bersama Menuju Masa Depan",
+  },
+  {
+    id: 3,
+    url: "https://images.unsplash.com/photo-1519225495810-7512c696505a?auto=format&fit=crop&q=80&w=800",
+    caption: "Senyuman Terindah di Hari Bahagia",
+  },
+  {
+    id: 4,
+    url: "https://images.unsplash.com/photo-1532712938310-34cb3982ef74?auto=format&fit=crop&q=80&w=800",
+    caption: "Dua Jiwa Satu Tujuan",
+  },
+  {
+    id: 5,
+    url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&q=80&w=800",
+    caption: "Saling Melengkapi Selamanya",
+  },
+  {
+    id: 6,
+    url: "https://images.unsplash.com/photo-1520854221256-17451cc35953?auto=format&fit=crop&q=80&w=800",
+    caption: "Dalam Dekapan Janji Suci",
+  },
+];
+
+export default function Gallery() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  const prevSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDirection(-1);
+    setCurrentIndex((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1));
+  };
+
+  const nextSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDirection(1);
+    setCurrentIndex((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
+  };
+
+  const transitionVariants = {
+    enter: (dir: number) => ({
+      opacity: 0,
+      scale: 1.05,
+      x: dir > 0 ? 40 : -40,
+    }),
+    center: {
+      opacity: 1,
+      scale: 1,
+      x: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.16, 1, 0.3, 1], // easeOutExpo
+      },
+    },
+    exit: (dir: number) => ({
+      opacity: 0,
+      scale: 0.95,
+      x: dir < 0 ? 40 : -40,
+      transition: {
+        duration: 0.4,
+        ease: [0.16, 1, 0.3, 1],
+      },
+    }),
+  };
+
+  return (
+    <section 
+      className="scroll-section relative text-white bg-stone-950" 
+      id="section-gallery"
+    >
+      {/* Absolute Wrapper for Full-Screen Slideshow */}
+      <div className="absolute inset-0 w-full h-full">
+        {/* Animated sliding images filling the entire container */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            <motion.div
+              key={currentIndex}
+              custom={direction}
+              variants={transitionVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="absolute inset-0 w-full h-full"
+            >
+              <img
+                src={galleryImages[currentIndex].url}
+                alt={galleryImages[currentIndex].caption}
+                className="w-full h-full object-cover select-none"
+                referrerPolicy="no-referrer"
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Left Edge Thin Navigation Arrow */}
+        <button
+          onClick={prevSlide}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 flex items-center justify-center text-white/65 hover:text-white transition-all cursor-pointer group"
+          aria-label="Previous image"
+        >
+          <ChevronLeft strokeWidth={1} className="w-10 h-10 transition-transform group-hover:-translate-x-1" />
+        </button>
+
+        {/* Right Edge Thin Navigation Arrow */}
+        <button
+          onClick={nextSlide}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 flex items-center justify-center text-white/65 hover:text-white transition-all cursor-pointer group"
+          aria-label="Next image"
+        >
+          <ChevronRight strokeWidth={1} className="w-10 h-10 transition-transform group-hover:translate-x-1" />
+        </button>
+
+        {/* Click anywhere on the overlay to open Lightbox (Z-index 20, behind navigation Z-index 30) */}
+        <div 
+          onClick={() => setIsLightboxOpen(true)}
+          className="absolute inset-0 z-20 cursor-pointer"
+          title="Klik untuk memperbesar"
+        />
+      </div>
+
+      {/* Elegant Full-screen Lightbox Modal */}
+      <AnimatePresence>
+        {isLightboxOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsLightboxOpen(false)}
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-md"
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setIsLightboxOpen(false)}
+              className="absolute top-6 right-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer z-50"
+              title="Tutup"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Lightbox Navigation Buttons */}
+            <button
+              onClick={prevSlide}
+              className="absolute left-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer z-50"
+              title="Sebelumnya"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            <button
+              onClick={nextSlide}
+              className="absolute right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer z-50"
+              title="Selanjutnya"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            {/* Big Zoomed Image Frame */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl flex flex-col bg-stone-900 border border-white/10 shadow-2xl"
+            >
+              <img
+                src={galleryImages[currentIndex].url}
+                alt={galleryImages[currentIndex].caption}
+                className="w-auto h-auto max-w-full max-h-[72vh] object-contain mx-auto"
+                referrerPolicy="no-referrer"
+              />
+              
+              {/* Lightbox Caption Bar */}
+              <div className="bg-black p-4 text-center border-t border-white/5">
+                <p className="font-serif italic text-base text-stone-300">
+                  {galleryImages[currentIndex].caption}
+                </p>
+                <p className="font-sans text-[10px] text-gray-500 uppercase tracking-[0.15em] mt-1">
+                  Momen {currentIndex + 1} dari {galleryImages.length}
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}

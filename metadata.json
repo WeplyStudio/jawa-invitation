@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Undangan Pernikahan Minimalis",
+  "description": "Elegant, clean, and modern digital wedding invitation with smooth scroll-snap sections, responsive design, backdrop video optimization, ambient music, guestbook, and RSVP tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
