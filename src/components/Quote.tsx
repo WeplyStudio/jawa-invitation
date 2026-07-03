@@ -57,7 +57,7 @@ export default function Quote() {
           className="flex items-center gap-2 mt-4"
         >
           <span className="font-serif italic text-lg md:text-xl text-stone-300 font-light">
-            Tiyah &amp; Puguh
+            Munti &amp; Puguh
           </span>
           <Heart className="w-3.5 h-3.5 text-stone-400 fill-stone-400/20 animate-pulse" />
         </motion.div>

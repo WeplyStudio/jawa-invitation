@@ -33,7 +33,7 @@ export default function Hero({ videoFinished }: { videoFinished: boolean }) {
                 transition={{ delay: 0.1, duration: 1.0 }}
                 className="font-serif text-5xl md:text-6xl font-light tracking-wide text-[#e8d7b3] leading-tight"
               >
-                TIYAH &amp;
+                MUNTI &amp;
                 <br />
                 PUGUH
               </motion.h2>

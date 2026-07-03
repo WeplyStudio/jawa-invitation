@@ -50,7 +50,7 @@ export default function Dashboard() {
   const [bulkInputText, setBulkInputText] = useState("");
   const [broadcastFormMode, setBroadcastFormMode] = useState<"single" | "bulk">("single");
   const [broadcastMessagePreset, setBroadcastMessagePreset] = useState(
-    "Halo *{NAMA}*, kami mengundang Anda untuk merayakan kebahagiaan kami di pernikahan Puguh & Tiyah.\n\nInfo lengkap & undangan digital Anda dapat diakses di link berikut:\n{LINK}\n\nMerupakan suatu kehormatan & kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu.\n\nSalam hangat,\nPuguh & Tiyah"
+    "Halo *{NAMA}*, kami mengundang Anda untuk merayakan kebahagiaan kami di pernikahan Puguh & Munti.\n\nInfo lengkap & undangan digital Anda dapat diakses di link berikut:\n{LINK}\n\nMerupakan suatu kehormatan & kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu.\n\nSalam hangat,\nPuguh & Munti"
   );
 
   // Load active session from localStorage on mount
@@ -143,7 +143,7 @@ export default function Dashboard() {
       setLoginUsername("");
       setLoginPassword("");
       setLoginError("");
-    } else if (user === "tiyah" && pass === "ikatjanjikami") {
+    } else if ((user === "tiyah" || user === "munti") && pass === "ikatjanjikami") {
       setCurrentUserRole("owner");
       setIsLoggedIn(true);
       localStorage.setItem("dashboard_role", "owner");
@@ -353,7 +353,7 @@ export default function Dashboard() {
                     required
                     value={loginUsername}
                     onChange={(e) => setLoginUsername(e.target.value)}
-                    placeholder="Masukkan username (contoh: admin / tiyah)"
+                    placeholder="Masukkan username (contoh: admin / munti)"
                     className="w-full px-4 py-2.5 bg-stone-950 border border-white/10 rounded-lg text-xs font-sans text-white focus:outline-none focus:border-amber-500/40 placeholder-gray-600 transition-colors"
                   />
                 </div>
@@ -430,7 +430,7 @@ export default function Dashboard() {
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
                     {currentUserRole === "admin"
                       ? "Akses Penuh / Full Control Mode"
-                      : "Akses Pemilik / Tiyah Mode"}
+                      : "Akses Pemilik / Munti Mode"}
                   </p>
                 </div>
               </div>

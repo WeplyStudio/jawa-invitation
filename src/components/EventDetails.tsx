@@ -46,11 +46,11 @@ export default function EventDetails() {
   // Handle adding event to calendar (Save the date action)
   const handleSaveTheDate = () => {
     // Generate .ics calendar event content
-    const title = "Pernikahan Puguh & Tiyah";
-    const description = "Hari bahagia pernikahan Puguh & Tiyah. Mohon doa restu Anda.";
+    const title = "Pernikahan Puguh & Munti";
+    const description = "Hari bahagia pernikahan Puguh & Munti. Mohon doa restu Anda.";
     const location = "Dusun Keng Keng, Desa Talesan, Wonogiri";
-    const startDate = "20270114T080000";
-    const endDate = "20270114T140000";
+    const startDate = "20270114T090000";
+    const endDate = "20270114T170000";
 
     const icsContent = 
       "BEGIN:VCALENDAR\n" +
@@ -68,7 +68,7 @@ export default function EventDetails() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "Pernikahan_Puguh_Tiyah.ics");
+    link.setAttribute("download", "Pernikahan_Puguh_Munti.ics");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -179,7 +179,7 @@ export default function EventDetails() {
                   NIKAH
                 </h4>
                 <p className="font-sans text-[10px] text-gray-300 mt-0.5 font-light">
-                  08.00 - 10.00 WIB
+                  09.00 - 10.00 WIB
                 </p>
               </div>
 
@@ -192,7 +192,7 @@ export default function EventDetails() {
                   PERNIKAHAN
                 </h4>
                 <p className="font-sans text-[10px] text-gray-300 mt-0.5 font-light">
-                  08.00 - 10.00 WIB
+                  13.00 WIB - Selesai
                 </p>
               </div>
             </motion.div>

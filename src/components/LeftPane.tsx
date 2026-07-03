@@ -7,7 +7,7 @@ interface LeftPaneProps {
 const sectionMedia: Record<string, { image: string; title: string; num: string; subtitle: string }> = {
   hero: {
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1600",
-    title: "Puguh & Tiyah",
+    title: "Puguh & Munti",
     subtitle: "PERNIKAHAN IMPIAN",
     num: "01 / 11",
   },
@@ -25,7 +25,7 @@ const sectionMedia: Record<string, { image: string; title: string; num: string; 
   },
   bride: {
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1200",
-    title: "Tiyah Munti Rahayu",
+    title: "Munti Tiyah Rahayu",
     subtitle: "MEMPELAI WANITA",
     num: "04 / 11",
   },
@@ -124,13 +124,13 @@ export default function LeftPane({ activeSection }: LeftPaneProps) {
         <div className="w-8 h-[1px] bg-white/30 my-4" />
 
         <p className="font-sans text-[11px] text-gray-300/80 tracking-wide font-light leading-relaxed">
-          Saksikan penyatuan janji suci cinta abadi Puguh &amp; Tiyah. Kebersamaan Anda adalah doa restu terindah bagi kami.
+          Saksikan penyatuan janji suci cinta abadi Puguh &amp; Munti. Kebersamaan Anda adalah doa restu terindah bagi kami.
         </p>
       </div>
 
       {/* Floating elegant floral line monogram */}
       <div className="absolute top-8 right-8 z-10 font-serif italic text-lg text-stone-300/80 tracking-[0.2em]">
-        P &amp; T
+        P &amp; M
       </div>
     </div>
   );

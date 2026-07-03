@@ -77,7 +77,7 @@ export default function LoveJourney() {
           >
             <div className="w-16 h-[1px] bg-white/20" />
             <span className="font-serif italic text-xs tracking-wider text-[#d8d3c5]">
-              Tiyah &amp; Puguh
+              Munti &amp; Puguh
             </span>
           </motion.div>
         </div>

@@ -11,6 +11,31 @@ export default function RSVPAndWishes() {
   const [rsvps, setRsvps] = useState<RSVP[]>([]);
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
 
+  // Cleanup previously seeded dummy/mock data documents from Firestore on startup
+  useEffect(() => {
+    const cleanDummyData = async () => {
+      const dummyWishIds = ["wish-1", "wish-2", "wish-3"];
+      const dummyRsvpIds = ["rsvp-1", "rsvp-2"];
+      
+      for (const id of dummyWishIds) {
+        try {
+          await deleteDoc(doc(db, "wishes", id));
+        } catch (error) {
+          console.error(`Error deleting dummy wish ${id}:`, error);
+        }
+      }
+      for (const id of dummyRsvpIds) {
+        try {
+          await deleteDoc(doc(db, "rsvps", id));
+        } catch (error) {
+          console.error(`Error deleting dummy rsvp ${id}:`, error);
+        }
+      }
+    };
+    
+    cleanDummyData();
+  }, []);
+
   // Wizard Step State
   const [step, setStep] = useState(1);
 
@@ -42,7 +67,7 @@ export default function RSVPAndWishes() {
   const [bulkInputText, setBulkInputText] = useState("");
   const [broadcastFormMode, setBroadcastFormMode] = useState<"single" | "bulk">("single");
   const [broadcastMessagePreset, setBroadcastMessagePreset] = useState(
-    "Halo *{NAMA}*, kami mengundang Anda untuk merayakan kebahagiaan kami di pernikahan Puguh & Tiyah.\n\nInfo lengkap & undangan digital Anda dapat diakses di link berikut:\n{LINK}\n\nMerupakan suatu kehormatan & kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu.\n\nSalam hangat,\nPuguh & Tiyah"
+    "Halo *{NAMA}*, kami mengundang Anda untuk merayakan kebahagiaan kami di pernikahan Puguh & Munti.\n\nInfo lengkap & undangan digital Anda dapat diakses di link berikut:\n{LINK}\n\nMerupakan suatu kehormatan & kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu.\n\nSalam hangat,\nPuguh & Munti"
   );
 
   // Real-time synchronization with Firestore NoSQL database
@@ -64,43 +89,7 @@ export default function RSVPAndWishes() {
 
       // Sort wishes so newer entries are on top.
       list.sort((a, b) => b.id.localeCompare(a.id));
-
-      if (list.length === 0 && snapshot.metadata.fromCache === false) {
-        // Seed default wishes if Firestore is completely empty
-        const initialWishes: Wish[] = [
-          {
-            id: "wish-1",
-            name: "Saras & Rian",
-            relationship: "Sahabat",
-            message: "Selamat ya Puguh dan Tiyah! Senang sekali melihat kalian akhirnya melangkah ke pelaminan. Semoga dilancarkan sampai hari-H dan selalu harmonis!",
-            timestamp: "30 Juni 2026",
-          },
-          {
-            id: "wish-2",
-            name: "Budi Santoso",
-            relationship: "Keluarga",
-            message: "Selamat menempuh hidup baru untuk keponakanku tersayang. Semoga menjadi keluarga yang sakinah, mawaddah, warahmah.",
-            timestamp: "30 Juni 2026",
-          },
-          {
-            id: "wish-3",
-            name: "Jessica Lauren",
-            relationship: "Teman",
-            message: "Happy Wedding guys! Wishing you both a lifetime of love, laughter, and endless happiness together!",
-            timestamp: "29 Juni 2026",
-          }
-        ];
-        for (const wish of initialWishes) {
-          await setDoc(doc(db, "wishes", wish.id), {
-            name: wish.name,
-            relationship: wish.relationship,
-            message: wish.message,
-            timestamp: wish.timestamp
-          });
-        }
-      } else {
-        setWishes(list);
-      }
+      setWishes(list);
     });
 
     // 2. Listen to RSVPs
@@ -121,41 +110,7 @@ export default function RSVPAndWishes() {
       });
 
       list.sort((a, b) => b.id.localeCompare(a.id));
-
-      if (list.length === 0 && snapshot.metadata.fromCache === false) {
-        // Seed default RSVPs if Firestore is completely empty
-        const initialRsvps: RSVP[] = [
-          {
-            id: "rsvp-1",
-            name: "Saras & Rian",
-            phone: "-",
-            attendance: "Hadir",
-            guestsCount: 2,
-            note: "Semoga bahagia selalu!",
-            timestamp: "30 Juni 2026",
-          },
-          {
-            id: "rsvp-2",
-            name: "Budi Santoso",
-            phone: "-",
-            attendance: "Hadir",
-            guestsCount: 2,
-            timestamp: "30 Juni 2026",
-          }
-        ];
-        for (const rsvp of initialRsvps) {
-          await setDoc(doc(db, "rsvps", rsvp.id), {
-            name: rsvp.name,
-            phone: rsvp.phone,
-            attendance: rsvp.attendance,
-            guestsCount: rsvp.guestsCount,
-            note: rsvp.note || "",
-            timestamp: rsvp.timestamp
-          });
-        }
-      } else {
-        setRsvps(list);
-      }
+      setRsvps(list);
     });
 
     // 3. Listen to Broadcast Requests
@@ -198,7 +153,7 @@ export default function RSVPAndWishes() {
       setLoginUsername("");
       setLoginPassword("");
       setLoginError("");
-    } else if (user === "tiyah" && pass === "ikatjanjikami") {
+    } else if ((user === "tiyah" || user === "munti") && pass === "ikatjanjikami") {
       setCurrentUserRole("owner");
       setShowLoginModal(false);
       setShowAdminView(true);

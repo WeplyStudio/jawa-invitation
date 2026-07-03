@@ -61,7 +61,7 @@ export default function ThankYou() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="font-serif text-[11px] md:text-xs tracking-[0.4em] text-stone-300 font-normal uppercase"
           >
-            TIYAH &amp; PUGUH
+            MUNTI &amp; PUGUH
           </motion.span>
         </div>
 

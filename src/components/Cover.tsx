@@ -58,7 +58,7 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
               transition={{ delay: 0.3, duration: 1.0, ease: "easeOut" }}
               className="font-serif text-lg sm:text-xl md:text-2xl tracking-[0.35em] text-stone-200 uppercase text-center font-light leading-relaxed"
             >
-              Tiyah &amp; Puguh
+              Munti &amp; Puguh
             </motion.h1>
           </motion.div>
         ) : phase === 'fanOpening' ? (
@@ -116,7 +116,7 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
                 transition={{ delay: 0.4, duration: 1.0 }}
                 className="font-serif text-3xl md:text-5xl font-light tracking-widest text-white uppercase leading-tight"
               >
-                TIYAH &amp; PUGUH
+                MUNTI &amp; PUGUH
               </motion.h1>
 
               <motion.p

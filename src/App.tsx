@@ -242,7 +242,7 @@ export default function App() {
                 <div className="w-full max-w-[420px] aspect-[4/3] rounded-sm overflow-hidden shadow-lg border border-stone-200 bg-stone-100">
                   <img
                     src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=1000"
-                    alt="Tiyah & Puguh"
+                    alt="Munti & Puguh"
                     className="w-full h-full object-cover grayscale brightness-95 hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />

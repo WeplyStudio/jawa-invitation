@@ -73,7 +73,7 @@ export default function Groom() {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="font-sans text-[10px] leading-relaxed text-stone-200 font-light mb-6"
           >
-            Anak ke-4 (Putra keempat) dari keluarga Alm. Bapak Karimin dan Ibu Tumini. Menemukan pelabuhan terakhir cintanya pada diri Tiyah Munti Rahayu.
+            Anak ke-4 (Putra keempat) dari keluarga Alm. Bapak Karimin dan Ibu Tumini. Menemukan pelabuhan terakhir cintanya pada diri Munti Tiyah Rahayu.
           </motion.p>
 
 
