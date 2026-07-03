@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Heart, Download } from "lucide-react";
 
 // Import the high quality images uploaded by the user
 import g1 from "../assets/1000397447.png";
@@ -78,6 +78,16 @@ export default function Gallery2() {
   const prevLightbox = (e: React.MouseEvent) => {
     e.stopPropagation();
     setLightboxIndex((prev) => (prev === 0 ? allGalleryImages.length - 1 : prev - 1));
+  };
+
+  const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const link = document.createElement("a");
+    link.href = allGalleryImages[lightboxIndex].src;
+    link.download = `photo_${lightboxIndex + 1}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -238,14 +248,23 @@ export default function Gallery2() {
             onClick={() => setIsLightboxOpen(false)}
             className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-md"
           >
-            {/* Close Button */}
-            <button
-              onClick={() => setIsLightboxOpen(false)}
-              className="absolute top-6 right-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer z-50"
-              title="Tutup"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            {/* Action Buttons */}
+            <div className="absolute top-6 right-6 flex gap-2 z-50">
+              <button
+                onClick={handleDownload}
+                className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer"
+                title="Download"
+              >
+                <Download className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setIsLightboxOpen(false)}
+                className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer"
+                title="Tutup"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
             {/* Navigation Buttons */}
             <button
