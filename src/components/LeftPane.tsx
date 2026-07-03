@@ -25,7 +25,7 @@ const sectionMedia: Record<string, { image: string; title: string; num: string; 
   },
   bride: {
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1200",
-    title: "Munti Tiyah Rahayu",
+    title: "Tiyah Munti Rahayu",
     subtitle: "MEMPELAI WANITA",
     num: "04 / 11",
   },

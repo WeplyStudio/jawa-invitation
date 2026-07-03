@@ -7,7 +7,7 @@ export default function GiftSection() {
   const [copied, setCopied] = useState(false);
   const accountNumber = "1323422894"; // Example
   const bankName = "BNI";
-  const accountHolder = "Munti Tiyah Rahayu";
+  const accountHolder = "Tiyah Munti Rahayu";
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(accountNumber);

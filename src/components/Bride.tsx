@@ -37,9 +37,9 @@ export default function Bride() {
             transition={{ delay: 0.1, duration: 0.8 }}
             className="font-serif text-4xl md:text-5xl font-light tracking-wide text-white mb-4 leading-tight"
           >
-            Munti
+            Tiyah
             <br />
-            Tiyah Rahayu
+            Munti Rahayu
           </motion.h2>
 
           {/* PARENTAL LINE */}
