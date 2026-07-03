@@ -24,7 +24,7 @@ export default function Hero({ videoFinished }: { videoFinished: boolean }) {
                 transition={{ duration: 0.8 }}
                 className="font-sans text-[10px] uppercase tracking-[0.35em] text-stone-300 font-semibold"
               >
-                THE WEDDING OF
+                PERNIKAHAN DARI
               </motion.p>
 
               <motion.h2
@@ -37,6 +37,15 @@ export default function Hero({ videoFinished }: { videoFinished: boolean }) {
                 <br />
                 PUGUH
               </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.8 }}
+                className="font-serif italic text-sm text-[#e8d7b3]/80 tracking-wide mt-[-8px]"
+              >
+                #sungGuhmencintaiMu
+              </motion.p>
 
               <motion.div
                 initial={{ opacity: 0 }}

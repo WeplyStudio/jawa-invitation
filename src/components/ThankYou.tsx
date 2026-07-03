@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Phone, Instagram, Globe } from "lucide-react";
+import cover2 from "../assets/cover2.png";
 
 export default function ThankYou() {
   return (
@@ -10,7 +11,7 @@ export default function ThankYou() {
       {/* Background with beautiful couple traditional photo matching screenshot */}
       <div className="absolute inset-0 z-0 overflow-hidden select-none pointer-events-none">
         <img
-          src="/src/assets/images/prewedding_video_cover_1782905459262.jpg"
+          src={cover2}
           alt="Thank You Background"
           className="w-full h-full object-cover select-none"
           referrerPolicy="no-referrer"
@@ -38,9 +39,9 @@ export default function ThankYou() {
             transition={{ duration: 0.9 }}
             className="font-serif text-xl md:text-2xl font-normal tracking-[0.15em] text-white mb-5 leading-tight uppercase"
           >
-            THANK YOU FOR
+            TERIMA KASIH ATAS
             <br />
-            YOUR ATTENDANCE
+            KEHADIRAN ANDA
           </motion.h2>
 
           <motion.p
@@ -50,7 +51,7 @@ export default function ThankYou() {
             transition={{ delay: 0.1, duration: 0.8 }}
             className="font-sans text-[10px] md:text-[11px] leading-relaxed text-stone-300 font-light max-w-[260px] mb-6 px-1"
           >
-            It is a pleasure and honor for us, if you are willing to attend and give us your blessing.
+            Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu bagi kami.
           </motion.p>
 
           <motion.span
@@ -70,7 +71,7 @@ export default function ThankYou() {
       <div className="relative z-10 w-full max-w-md flex flex-col items-center gap-2.5 text-center shrink-0 mt-6 pb-2 select-none">
         
         <div className="text-[9px] font-sans uppercase tracking-[0.2em] text-white/60 font-semibold">
-          CREATED BY KRIG STUDIO
+          DIBUAT OLEH KRIG STUDIO
         </div>
 
         {/* Dynamic Horizontal Info items */}
@@ -106,7 +107,7 @@ export default function ThankYou() {
 
         {/* Copyright notice */}
         <div className="text-[9px] font-sans text-white/45 tracking-wide mt-1">
-          &copy; All rights reserved by Krig Studio
+          &copy; Hak Cipta Dilindungi oleh Krig Studio
         </div>
 
       </div>

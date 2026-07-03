@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { useState, useRef, useEffect } from "react";
 import { Calendar, Heart } from "lucide-react";
-import introVideo from "../assets/Ubah_jadi_warna_hijau_itu_ka.mp4";
+import introVideo from "../assets/Ubah_warna_rumah_nya_jadi_warn.mp4";
 
 export default function EventDetails() {
   const [showContent, setShowContent] = useState(false);
@@ -253,7 +253,7 @@ export default function EventDetails() {
                 className="inline-flex items-center gap-2 px-6 py-2.5 border border-white hover:bg-white hover:text-stone-950 transition-all duration-300 font-sans text-[10px] tracking-widest uppercase font-medium rounded-sm cursor-pointer"
               >
                 <Calendar className="w-3.5 h-3.5" />
-                <span>SAVE THE DATE →</span>
+                <span>SIMPAN TANGGAL ACARA →</span>
               </button>
             </motion.div>
           </>

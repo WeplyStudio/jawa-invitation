@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
-import introVideo from "./assets/Ubah_jadi_warna_hijau_itu_ka.mp4";
+import introVideo from "./assets/Ubah_warna_rumah_nya_jadi_warn.mp4";
+import backsound from "./assets/backsound.mp3";
 import Cover from "./components/Cover";
 import MusicPlayer from "./components/MusicPlayer";
 import LeftPane from "./components/LeftPane";
@@ -12,13 +13,16 @@ import Bride from "./components/Bride";
 import LoveJourney from "./components/LoveJourney";
 import EventDetails from "./components/EventDetails";
 import Gallery from "./components/Gallery";
+import Gallery2 from "./components/Gallery2";
 import RSVPAndWishes from "./components/RSVPAndWishes";
 import GiftSection from "./components/GiftSection";
 import ThankYou from "./components/ThankYou";
+import Dashboard from "./components/Dashboard";
 
-const backgroundMusicUrl = "https://inv.akaddigitech.id/wp-content/uploads/2025/09/Irenne-Ghea-Feat-Widhi-Arjuna-Sotya-Dangdut.mp3";
+const backgroundMusicUrl = backsound;
 
 export default function App() {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const [isOpened, setIsOpened] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoFinished, setVideoFinished] = useState(false);
@@ -28,8 +32,20 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener("popstate", handleLocationChange);
+    return () => window.removeEventListener("popstate", handleLocationChange);
+  }, []);
+
+  useEffect(() => {
+    if (currentPath === "/dashboard" || currentPath === "/dashboard/") {
+      return;
+    }
     const audio = new Audio(backgroundMusicUrl);
     audio.loop = true;
+    audio.currentTime = 127; // Start at 2:07 (127 seconds)
     audioRef.current = audio;
 
     return () => {
@@ -42,6 +58,10 @@ export default function App() {
     if (!audioRef.current) return;
 
     if (isPlaying) {
+      // If the current time is less than 127, seek to 127
+      if (audioRef.current.currentTime < 127) {
+        audioRef.current.currentTime = 127;
+      }
       audioRef.current.play().catch((err) => {
         console.log("Audio play failed: ", err);
         setIsPlaying(false);
@@ -64,7 +84,7 @@ export default function App() {
   useEffect(() => {
     if (!isOpened) return;
 
-    const sections = ["hero", "quote", "groom", "bride", "journey", "details", "gallery", "rsvp", "gift", "thankyou"];
+    const sections = ["hero", "quote", "groom", "bride", "journey", "details", "gallery", "gallery-grid", "rsvp", "gift", "thankyou"];
     const handleScroll = () => {
       const scrollPos = window.scrollY || document.documentElement.scrollTop;
       const windowHeight = window.innerHeight;
@@ -107,6 +127,10 @@ export default function App() {
       setActiveSection(id);
     }
   };
+
+  if (currentPath === "/dashboard" || currentPath === "/dashboard/") {
+    return <Dashboard />;
+  }
 
   return (
     <div className="relative bg-[#1a2e23] text-gray-900 min-h-screen overflow-hidden selection:bg-stone-200 selection:text-stone-900">
@@ -180,6 +204,7 @@ export default function App() {
               <LoveJourney />
               <EventDetails />
               <Gallery />
+              <Gallery2 />
               <RSVPAndWishes />
               <GiftSection />
               <ThankYou />
@@ -234,7 +259,8 @@ export default function App() {
                     { label: "Wedding Event", section: "details" },
                     { label: "RSVP", section: "rsvp" },
                     { label: "Wedding Gift", section: "gift" },
-                    { label: "Gallery", section: "gallery" },
+                    { label: "Gallery I", section: "gallery" },
+                    { label: "Gallery II", section: "gallery-grid" },
                   ].map((item, idx) => (
                     <motion.button
                       key={idx}

@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CheckCircle, MessageSquare, Send, Users, Heart, ShieldAlert, X, ChevronLeft, Search } from "lucide-react";
-import { RSVP, Wish } from "../types";
+import { CheckCircle, MessageSquare, Send, Users, Heart, ShieldAlert, X, ChevronLeft, Search, Trash2, Lock, LogOut, Check, Plus, Clipboard, List, AlertCircle, Copy, Eye, EyeOff } from "lucide-react";
+import { Drawer } from "vaul";
+import { RSVP, Wish, Broadcast } from "../types";
+import { db } from "../lib/firebase";
+import { collection, doc, setDoc, deleteDoc, onSnapshot, query } from "firebase/firestore";
 
 export default function RSVPAndWishes() {
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [rsvps, setRsvps] = useState<RSVP[]>([]);
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
 
   // Wizard Step State
   const [step, setStep] = useState(1);
@@ -15,72 +19,338 @@ export default function RSVPAndWishes() {
   const [rsvpAttendance, setRsvpAttendance] = useState<"Hadir" | "Tidak Hadir" | "">("");
   const [rsvpNote, setRsvpNote] = useState("");
 
-  // UI state
+  // UI and Authentication State
   const [showWishesModal, setShowWishesModal] = useState(false);
   const [showAdminView, setShowAdminView] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  // Login fields
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [currentUserRole, setCurrentUserRole] = useState<"admin" | "owner" | null>(null);
+
+  // Tab State inside Dashboard Panel (rsvps, wishes, broadcasts)
+  const [adminTab, setAdminTab] = useState<"rsvps" | "wishes" | "broadcasts">("rsvps");
   const [searchQuery, setSearchQuery] = useState("");
+  const [adminSearchQuery, setAdminSearchQuery] = useState("");
 
-  // Load initial mockup and save to localStorage
+  // Broadcast list form states
+  const [singleGuestName, setSingleGuestName] = useState("");
+  const [singleGuestPhone, setSingleGuestPhone] = useState("");
+  const [bulkInputText, setBulkInputText] = useState("");
+  const [broadcastFormMode, setBroadcastFormMode] = useState<"single" | "bulk">("single");
+  const [broadcastMessagePreset, setBroadcastMessagePreset] = useState(
+    "Halo *{NAMA}*, kami mengundang Anda untuk merayakan kebahagiaan kami di pernikahan Puguh & Tiyah.\n\nInfo lengkap & undangan digital Anda dapat diakses di link berikut:\n{LINK}\n\nMerupakan suatu kehormatan & kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu.\n\nSalam hangat,\nPuguh & Tiyah"
+  );
+
+  // Real-time synchronization with Firestore NoSQL database
   useEffect(() => {
-    const savedWishes = localStorage.getItem("wedding_wishes");
-    const savedRsvps = localStorage.getItem("wedding_rsvps");
+    // 1. Listen to Wishes
+    const wishesQuery = query(collection(db, "wishes"));
+    const unsubscribeWishes = onSnapshot(wishesQuery, async (snapshot) => {
+      const list: Wish[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        list.push({
+          id: docSnap.id,
+          name: data.name || "",
+          relationship: data.relationship || "Teman",
+          message: data.message || "",
+          timestamp: data.timestamp || "",
+        });
+      });
 
-    if (savedWishes) {
-      setWishes(JSON.parse(savedWishes));
-    } else {
-      const initialWishes: Wish[] = [
-        {
-          id: "w-1",
-          name: "Saras & Rian",
-          relationship: "Sahabat",
-          message: "Selamat ya Puguh dan Tiyah! Senang sekali melihat kalian akhirnya melangkah ke pelaminan. Semoga dilancarkan sampai hari-H dan selalu harmonis!",
-          timestamp: "30 Juni 2026",
-        },
-        {
-          id: "w-2",
-          name: "Budi Santoso",
-          relationship: "Keluarga",
-          message: "Selamat menempuh hidup baru untuk keponakanku tersayang. Semoga menjadi keluarga yang sakinah, mawaddah, warahmah.",
-          timestamp: "30 Juni 2026",
-        },
-        {
-          id: "w-3",
-          name: "Jessica Lauren",
-          relationship: "Teman",
-          message: "Happy Wedding guys! Wishing you both a lifetime of love, laughter, and endless happiness together!",
-          timestamp: "29 Juni 2026",
-        }
-      ];
-      setWishes(initialWishes);
-      localStorage.setItem("wedding_wishes", JSON.stringify(initialWishes));
-    }
+      // Sort wishes so newer entries are on top.
+      list.sort((a, b) => b.id.localeCompare(a.id));
 
-    if (savedRsvps) {
-      setRsvps(JSON.parse(savedRsvps));
-    } else {
-      const initialRsvps: RSVP[] = [
-        {
-          id: "r-1",
-          name: "Saras & Rian",
-          phone: "-",
-          attendance: "Hadir",
-          guestsCount: 2,
-          note: "Semoga bahagia selalu!",
-          timestamp: "30 Juni 2026",
-        },
-        {
-          id: "r-2",
-          name: "Budi Santoso",
-          phone: "-",
-          attendance: "Hadir",
-          guestsCount: 2,
-          timestamp: "30 Juni 2026",
+      if (list.length === 0 && snapshot.metadata.fromCache === false) {
+        // Seed default wishes if Firestore is completely empty
+        const initialWishes: Wish[] = [
+          {
+            id: "wish-1",
+            name: "Saras & Rian",
+            relationship: "Sahabat",
+            message: "Selamat ya Puguh dan Tiyah! Senang sekali melihat kalian akhirnya melangkah ke pelaminan. Semoga dilancarkan sampai hari-H dan selalu harmonis!",
+            timestamp: "30 Juni 2026",
+          },
+          {
+            id: "wish-2",
+            name: "Budi Santoso",
+            relationship: "Keluarga",
+            message: "Selamat menempuh hidup baru untuk keponakanku tersayang. Semoga menjadi keluarga yang sakinah, mawaddah, warahmah.",
+            timestamp: "30 Juni 2026",
+          },
+          {
+            id: "wish-3",
+            name: "Jessica Lauren",
+            relationship: "Teman",
+            message: "Happy Wedding guys! Wishing you both a lifetime of love, laughter, and endless happiness together!",
+            timestamp: "29 Juni 2026",
+          }
+        ];
+        for (const wish of initialWishes) {
+          await setDoc(doc(db, "wishes", wish.id), {
+            name: wish.name,
+            relationship: wish.relationship,
+            message: wish.message,
+            timestamp: wish.timestamp
+          });
         }
-      ];
-      setRsvps(initialRsvps);
-      localStorage.setItem("wedding_rsvps", JSON.stringify(initialRsvps));
-    }
+      } else {
+        setWishes(list);
+      }
+    });
+
+    // 2. Listen to RSVPs
+    const rsvpsQuery = query(collection(db, "rsvps"));
+    const unsubscribeRsvps = onSnapshot(rsvpsQuery, async (snapshot) => {
+      const list: RSVP[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        list.push({
+          id: docSnap.id,
+          name: data.name || "",
+          phone: data.phone || "",
+          attendance: data.attendance || "Hadir",
+          guestsCount: Number(data.guestsCount ?? 0),
+          note: data.note || "",
+          timestamp: data.timestamp || "",
+        });
+      });
+
+      list.sort((a, b) => b.id.localeCompare(a.id));
+
+      if (list.length === 0 && snapshot.metadata.fromCache === false) {
+        // Seed default RSVPs if Firestore is completely empty
+        const initialRsvps: RSVP[] = [
+          {
+            id: "rsvp-1",
+            name: "Saras & Rian",
+            phone: "-",
+            attendance: "Hadir",
+            guestsCount: 2,
+            note: "Semoga bahagia selalu!",
+            timestamp: "30 Juni 2026",
+          },
+          {
+            id: "rsvp-2",
+            name: "Budi Santoso",
+            phone: "-",
+            attendance: "Hadir",
+            guestsCount: 2,
+            timestamp: "30 Juni 2026",
+          }
+        ];
+        for (const rsvp of initialRsvps) {
+          await setDoc(doc(db, "rsvps", rsvp.id), {
+            name: rsvp.name,
+            phone: rsvp.phone,
+            attendance: rsvp.attendance,
+            guestsCount: rsvp.guestsCount,
+            note: rsvp.note || "",
+            timestamp: rsvp.timestamp
+          });
+        }
+      } else {
+        setRsvps(list);
+      }
+    });
+
+    // 3. Listen to Broadcast Requests
+    const broadcastsQuery = query(collection(db, "broadcasts"));
+    const unsubscribeBroadcasts = onSnapshot(broadcastsQuery, async (snapshot) => {
+      const list: Broadcast[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        list.push({
+          id: docSnap.id,
+          name: data.name || "",
+          phone: data.phone || "",
+          status: (data.status as "Belum Dikirim" | "Sudah Dikirim") || "Belum Dikirim",
+          timestamp: data.timestamp || "",
+        });
+      });
+
+      list.sort((a, b) => b.id.localeCompare(a.id));
+      setBroadcasts(list);
+    });
+
+    return () => {
+      unsubscribeWishes();
+      unsubscribeRsvps();
+      unsubscribeBroadcasts();
+    };
   }, []);
+
+  // Authentication Flow Handlers
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const user = loginUsername.trim().toLowerCase();
+    const pass = loginPassword;
+
+    if (user === "admin" && pass === "admin123") {
+      setCurrentUserRole("admin");
+      setShowLoginModal(false);
+      setShowAdminView(true);
+      setAdminTab("rsvps");
+      setLoginUsername("");
+      setLoginPassword("");
+      setLoginError("");
+    } else if (user === "tiyah" && pass === "ikatjanjikami") {
+      setCurrentUserRole("owner");
+      setShowLoginModal(false);
+      setShowAdminView(true);
+      setAdminTab("rsvps");
+      setLoginUsername("");
+      setLoginPassword("");
+      setLoginError("");
+    } else {
+      setLoginError("Username atau Password salah!");
+    }
+  };
+
+  const handleOpenDashboardClick = () => {
+    if (currentUserRole) {
+      setShowAdminView(true);
+    } else {
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUserRole(null);
+    setShowAdminView(false);
+    setShowLoginModal(false);
+  };
+
+  // Broadcast Sebar Form Handlers
+  const handleAddSingleBroadcast = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!singleGuestName.trim() || !singleGuestPhone.trim()) return;
+
+    const timestamp = new Date().toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+    const id = "broadcast-" + Date.now();
+    const broadcastData = {
+      name: singleGuestName.trim(),
+      phone: singleGuestPhone.trim(),
+      status: "Belum Dikirim",
+      timestamp,
+    };
+
+    try {
+      await setDoc(doc(db, "broadcasts", id), broadcastData);
+      setSingleGuestName("");
+      setSingleGuestPhone("");
+    } catch (error) {
+      console.error("Error adding single broadcast: ", error);
+    }
+  };
+
+  const handleAddBulkBroadcasts = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bulkInputText.trim()) return;
+
+    const lines = bulkInputText.split("\n");
+    const timestamp = new Date().toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+    let count = 0;
+    for (const line of lines) {
+      if (!line.trim()) continue;
+
+      let name = "";
+      let phone = "";
+
+      if (line.includes("-")) {
+        const parts = line.split("-");
+        name = parts[0].trim();
+        phone = parts[1].trim();
+      } else if (line.includes(",")) {
+        const parts = line.split(",");
+        name = parts[0].trim();
+        phone = parts[1].trim();
+      } else {
+        const lastSpace = line.lastIndexOf(" ");
+        if (lastSpace > 0) {
+          name = line.substring(0, lastSpace).trim();
+          phone = line.substring(lastSpace).trim();
+        } else {
+          name = line.trim();
+          phone = "";
+        }
+      }
+
+      // Sanitize phone (keep numbers)
+      phone = phone.replace(/[^0-9]/g, "");
+
+      if (name && phone) {
+        const id = `broadcast-${Date.now()}-${count}`;
+        const broadcastData = {
+          name,
+          phone,
+          status: "Belum Dikirim",
+          timestamp,
+        };
+        try {
+          await setDoc(doc(db, "broadcasts", id), broadcastData);
+          count++;
+        } catch (error) {
+          console.error("Error writing bulk broadcast: ", error);
+        }
+      }
+    }
+
+    setBulkInputText("");
+  };
+
+  const handleSendWhatsApp = (item: Broadcast) => {
+    let cleanPhone = item.phone.replace(/[^0-9]/g, "");
+    if (cleanPhone.startsWith("0")) {
+      cleanPhone = "62" + cleanPhone.substring(1);
+    } else if (!cleanPhone.startsWith("62") && cleanPhone.length > 5) {
+      cleanPhone = "62" + cleanPhone;
+    }
+
+    const invitationLink = `${window.location.origin}/?to=${encodeURIComponent(item.name)}`;
+    const message = broadcastMessagePreset
+      .replace(/{NAMA}/g, item.name)
+      .replace(/{LINK}/g, invitationLink);
+
+    const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+    window.open(waUrl, "_blank");
+
+    // Automatically mark as sent for smooth experience
+    handleToggleBroadcastStatus(item.id, "Sudah Dikirim");
+  };
+
+  const handleToggleBroadcastStatus = async (id: string, newStatus: "Belum Dikirim" | "Sudah Dikirim") => {
+    try {
+      await setDoc(doc(db, "broadcasts", id), { status: newStatus }, { merge: true });
+    } catch (error) {
+      console.error("Error toggling status: ", error);
+    }
+  };
+
+  const handleDeleteBroadcast = async (id: string) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus antrean undangan ini?")) {
+      try {
+        await deleteDoc(doc(db, "broadcasts", id));
+      } catch (error) {
+        console.error("Error deleting broadcast: ", error);
+      }
+    }
+  };
+
 
   const handleNextStep = () => {
     if (step === 1 && !rsvpName.trim()) return;
@@ -92,7 +362,7 @@ export default function RSVPAndWishes() {
     setStep((prev) => Math.max(1, prev - 1));
   };
 
-  const handleSubmitRsvpFlow = () => {
+  const handleSubmitRsvpFlow = async () => {
     if (!rsvpName.trim() || !rsvpAttendance) return;
 
     const timestamp = new Date().toLocaleDateString("id-ID", {
@@ -101,36 +371,59 @@ export default function RSVPAndWishes() {
       year: "numeric",
     });
 
-    const newRsvp: RSVP = {
-      id: "rsvp-" + Date.now(),
+    const idSuffix = Date.now();
+    const rsvpId = "rsvp-" + idSuffix;
+
+    const rsvpData = {
       name: rsvpName.trim(),
       phone: "-",
       attendance: rsvpAttendance as "Hadir" | "Tidak Hadir",
       guestsCount: rsvpAttendance === "Hadir" ? 1 : 0,
-      note: rsvpNote.trim() || undefined,
+      note: rsvpNote.trim() || "",
       timestamp,
     };
 
-    // Save as Wish too if wishes text is not empty
-    if (rsvpNote.trim()) {
-      const newWish: Wish = {
-        id: "wish-" + Date.now(),
-        name: rsvpName.trim(),
-        relationship: "Teman",
-        message: rsvpNote.trim(),
-        timestamp,
-      };
-      const updatedWishes = [newWish, ...wishes];
-      setWishes(updatedWishes);
-      localStorage.setItem("wedding_wishes", JSON.stringify(updatedWishes));
+    try {
+      // Save to rsvps collection
+      await setDoc(doc(db, "rsvps", rsvpId), rsvpData);
+
+      // Save as Wish too if wishes text is not empty
+      if (rsvpNote.trim()) {
+        const wishId = "wish-" + idSuffix;
+        const wishData = {
+          name: rsvpName.trim(),
+          relationship: "Teman" as const,
+          message: rsvpNote.trim(),
+          timestamp,
+        };
+        await setDoc(doc(db, "wishes", wishId), wishData);
+      }
+
+      // Proceed to success step (Step 4)
+      setStep(4);
+    } catch (error) {
+      console.error("Error submitting RSVP: ", error);
     }
+  };
 
-    const updatedRsvps = [newRsvp, ...rsvps];
-    setRsvps(updatedRsvps);
-    localStorage.setItem("wedding_rsvps", JSON.stringify(updatedRsvps));
+  const handleDeleteRsvp = async (id: string) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus RSVP ini?")) {
+      try {
+        await deleteDoc(doc(db, "rsvps", id));
+      } catch (error) {
+        console.error("Error deleting RSVP: ", error);
+      }
+    }
+  };
 
-    // Proceed to success step (Step 4)
-    setStep(4);
+  const handleDeleteWish = async (id: string) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus ucapan ini?")) {
+      try {
+        await deleteDoc(doc(db, "wishes", id));
+      } catch (error) {
+        console.error("Error deleting wish: ", error);
+      }
+    }
   };
 
   const handleResetForm = () => {
@@ -150,9 +443,10 @@ export default function RSVPAndWishes() {
       w.message.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+
   return (
     <section
-      className="scroll-section relative flex flex-col items-center justify-between text-white bg-transparent px-8 py-14"
+      className="scroll-section relative flex flex-col items-center justify-between text-white bg-transparent px-8 pt-8 pb-12"
       id="section-rsvp"
     >
       {/* Dark Filter over the background */}
@@ -160,7 +454,7 @@ export default function RSVPAndWishes() {
 
       {/* Top Page Count Indicator matching style */}
       <div className="relative z-10 font-sans text-xs tracking-[0.3em] text-white/80 font-light select-none shrink-0 mt-2">
-        11 / 12
+        09 / 11
       </div>
 
       {/* Main Container */}
@@ -174,9 +468,9 @@ export default function RSVPAndWishes() {
           transition={{ duration: 0.8 }}
           className="font-serif italic text-2xl md:text-3xl font-light tracking-wide text-white mb-3 leading-snug"
         >
-          Kindly Confirm Your Presence
+          Mohon Konfirmasi Kehadiran Anda
           <br />
-          And Share Your Blessings
+          Dan Kirimkan Doa Restu
         </motion.h2>
 
         {/* Dynamic Subtitle description */}
@@ -185,17 +479,17 @@ export default function RSVPAndWishes() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, margin: "-100px" }}
           transition={{ delay: 0.1, duration: 0.8 }}
-          className="font-sans text-[11px] leading-relaxed text-gray-300 font-light max-w-sm mb-8"
+          className="font-sans text-[11px] leading-relaxed text-gray-300 font-light max-w-sm mb-5"
         >
           {step === 4 ? (
             "Terima kasih atas konfirmasi kehadiran Anda. Setiap restu dan doa Anda sangatlah berharga untuk lembaran kehidupan baru kami."
           ) : (
-            "We kindly request your prompt response to confirm your attendance at our upcoming event. Alongside your RSVP, please take a moment to extend your warm regards and best wishes."
+            "Mohon luangkan waktu sejenak untuk mengisi formulir konfirmasi kehadiran di bawah ini, serta menuliskan ucapan selamat dan doa restu terbaik Anda untuk kedua mempelai."
           )}
         </motion.p>
 
         {/* Circular Progress Steps */}
-        <div className="flex items-center justify-between w-full max-w-xs mb-8 relative px-4">
+        <div className="flex items-center justify-between w-full max-w-xs mb-4 relative px-4">
           {[1, 2, 3, 4].map((num, idx) => (
             <React.Fragment key={num}>
               {idx > 0 && (
@@ -219,7 +513,7 @@ export default function RSVPAndWishes() {
         </div>
 
         {/* Animated Form Steps Area */}
-        <div className="w-full min-h-[160px] flex items-center justify-center mb-10">
+        <div className="w-full min-h-[140px] flex items-center justify-center mb-5">
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div
@@ -231,7 +525,7 @@ export default function RSVPAndWishes() {
                 className="w-full text-left"
               >
                 <label className="block font-sans text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2 font-semibold">
-                  NAME
+                  NAMA TAMU
                 </label>
                 <input
                   type="text"
@@ -246,7 +540,7 @@ export default function RSVPAndWishes() {
                   disabled={!rsvpName.trim()}
                   className="w-full py-3 bg-black hover:bg-stone-950 text-white font-sans text-[10px] tracking-widest uppercase font-semibold rounded-sm border border-white/15 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  NEXT
+                  LANJUT
                 </button>
               </motion.div>
             )}
@@ -261,7 +555,7 @@ export default function RSVPAndWishes() {
                 className="w-full text-left"
               >
                 <label className="block font-sans text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-3 font-semibold">
-                  ATTENDANCE
+                  KONFIRMASI KEHADIRAN
                 </label>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <button
@@ -273,7 +567,7 @@ export default function RSVPAndWishes() {
                         : "bg-black/30 text-white border-white/10 hover:border-white/30"
                     }`}
                   >
-                    EXCITED TO ATTEND
+                    SAYA AKAN HADIR
                   </button>
                   <button
                     type="button"
@@ -284,7 +578,7 @@ export default function RSVPAndWishes() {
                         : "bg-black/30 text-white border-white/10 hover:border-white/30"
                     }`}
                   >
-                    UNABLE ATTEND
+                    SAYANGNYA TIDAK HADIR
                   </button>
                 </div>
                 
@@ -294,7 +588,7 @@ export default function RSVPAndWishes() {
                     onClick={handlePrevStep}
                     className="py-3 bg-stone-800/60 hover:bg-stone-800 text-white font-sans text-[10px] tracking-widest uppercase font-semibold rounded-sm border border-white/10 transition-all cursor-pointer"
                   >
-                    PREVIOUS
+                    KEMBALI
                   </button>
                   <button
                     type="button"
@@ -302,7 +596,7 @@ export default function RSVPAndWishes() {
                     disabled={!rsvpAttendance}
                     className="py-3 bg-black hover:bg-stone-950 text-white font-sans text-[10px] tracking-widest uppercase font-semibold rounded-sm border border-white/15 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    NEXT
+                    LANJUT
                   </button>
                 </div>
               </motion.div>
@@ -318,7 +612,7 @@ export default function RSVPAndWishes() {
                 className="w-full text-left"
               >
                 <label className="block font-sans text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2 font-semibold">
-                  WISHES
+                  UCAPAN &amp; DOA RESTU
                 </label>
                 <textarea
                   value={rsvpNote}
@@ -334,14 +628,14 @@ export default function RSVPAndWishes() {
                     onClick={handlePrevStep}
                     className="py-3 bg-stone-800/60 hover:bg-stone-800 text-white font-sans text-[10px] tracking-widest uppercase font-semibold rounded-sm border border-white/10 transition-all cursor-pointer"
                   >
-                    PREVIOUS
+                    KEMBALI
                   </button>
                   <button
                     type="button"
                     onClick={handleSubmitRsvpFlow}
                     className="py-3 bg-black hover:bg-stone-950 text-white font-sans text-[10px] tracking-widest uppercase font-semibold rounded-sm border border-white/15 transition-all cursor-pointer"
                   >
-                    SEND
+                    KIRIM
                   </button>
                 </div>
               </motion.div>
@@ -380,64 +674,41 @@ export default function RSVPAndWishes() {
           </AnimatePresence>
         </div>
 
-        {/* Wishes Display Area */}
-        <div className="w-full pt-8 border-t border-white/10 flex flex-col items-center">
-          <h3 className="font-serif italic text-xl text-white font-light tracking-wide mb-6">
-            Wishes &amp; Blessings
+        {/* Wishes Display Area - Compact Button and Dashboard to save space */}
+        <div className="w-full pt-4 border-t border-white/10 flex flex-col items-center">
+          <h3 className="font-serif italic text-base text-white font-light tracking-wide mb-2">
+            Ucapan &amp; Doa Restu
           </h3>
-          
-          <div className="w-full space-y-4 mb-6">
-            {wishes.slice(0, 3).map((w, idx) => (
-              <motion.div
-                key={w.id}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: false, margin: "-50px" }}
-                transition={{ delay: idx * 0.1, duration: 0.5 }}
-                className="text-left w-full bg-black/40 p-4 rounded-xl border border-white/5"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <span className="font-serif text-sm font-medium text-white">{w.name}</span>
-                  <span className="font-sans text-[9px] text-gray-500 tracking-wider">{w.timestamp}</span>
-                </div>
-                <p className="font-sans text-[11px] leading-relaxed text-gray-300 font-light italic">
-                  "{w.message}"
-                </p>
-              </motion.div>
-            ))}
+          <p className="font-sans text-[10px] text-gray-400 text-center mb-2.5 max-w-[280px]">
+            Klik tombol di bawah ini untuk melihat ucapan selamat dan doa restu dari para tamu undangan lainnya.
+          </p>
+          <div className="flex w-full max-w-[300px] justify-center">
+            <button
+              onClick={() => setShowWishesModal(true)}
+              className="w-full px-4 py-2.5 bg-white text-stone-950 text-[10.5px] tracking-widest uppercase font-sans font-bold rounded-sm hover:bg-stone-200 transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-lg"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-stone-950" />
+              <span>Lihat Ucapan ({wishes.length})</span>
+            </button>
           </div>
-
-          <button
-            onClick={() => setShowWishesModal(true)}
-            className="px-6 py-2.5 bg-transparent border border-white/20 text-white text-[10px] tracking-widest uppercase font-sans font-medium rounded-sm hover:bg-white/10 transition-colors cursor-pointer"
-          >
-            Lihat Semua Ucapan ({wishes.length})
-          </button>
         </div>
 
       </div>
 
       {/* Floating Utilities & Branding */}
-      <div className="relative z-10 h-8 mt-6 shrink-0" />
+      <div className="relative z-10 h-2 mt-2 shrink-0" />
 
-      {/* Beautiful overlay modal for Guestbook / Board of Wishes */}
-      <AnimatePresence>
-        {showWishesModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-stone-950/95 backdrop-blur-md flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-stone-900 border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col h-[520px]"
-              onClick={(e) => e.stopPropagation()}
-            >
+      {/* Modern Vaul Bottom Sheet Drawer for Buku Tamu / Guestbook */}
+      <Drawer.Root open={showWishesModal} onOpenChange={setShowWishesModal}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs" />
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 max-h-[85vh] outline-none flex flex-col bg-stone-900 border-t border-white/15 rounded-t-2xl">
+            <div className="p-4 bg-stone-900 rounded-t-2xl flex-1 flex flex-col overflow-hidden max-w-md mx-auto w-full">
+              {/* Grab bar / Notch */}
+              <div className="mx-auto w-12 h-1 flex-shrink-0 rounded-full bg-white/20 mb-4" />
+
               {/* Header */}
-              <div className="bg-stone-950 p-4 border-b border-white/10 flex justify-between items-center shrink-0">
+              <div className="flex justify-between items-center mb-4 shrink-0 px-2">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-stone-300" />
                   <div>
@@ -456,7 +727,7 @@ export default function RSVPAndWishes() {
               </div>
 
               {/* Search Bar */}
-              <div className="p-3 bg-stone-900/60 border-b border-white/5 shrink-0">
+              <div className="mb-4 shrink-0 px-2">
                 <div className="relative flex items-center">
                   <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 pointer-events-none" />
                   <input
@@ -470,9 +741,9 @@ export default function RSVPAndWishes() {
               </div>
 
               {/* Scrollable list of wishes */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
+              <div className="flex-1 overflow-y-auto px-2 space-y-3 pb-6 no-scrollbar">
                 {filteredWishes.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center py-10">
+                  <div className="py-12 flex flex-col items-center justify-center text-center">
                     <Heart className="w-8 h-8 text-stone-700 mb-2" />
                     <p className="text-xs text-gray-500 font-serif italic">
                       Tidak ada doa restu yang ditemukan.
@@ -504,7 +775,7 @@ export default function RSVPAndWishes() {
               </div>
 
               {/* Footer */}
-              <div className="p-3.5 bg-stone-950 border-t border-white/10 shrink-0 flex justify-end">
+              <div className="pt-3 border-t border-white/5 shrink-0 flex justify-end">
                 <button
                   onClick={() => setShowWishesModal(false)}
                   className="px-4 py-1.5 bg-white text-stone-950 font-sans text-[9px] tracking-widest uppercase font-semibold rounded-sm hover:bg-gray-100 transition-all cursor-pointer"
@@ -512,121 +783,11 @@ export default function RSVPAndWishes() {
                   SELESAI
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
 
-      {/* Slide-over Dashboard Modal for RSVP Data */}
-      <AnimatePresence>
-        {showAdminView && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-stone-950/90 backdrop-blur-sm flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-stone-900 border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col h-[500px]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="bg-stone-950 p-4 border-b border-white/10 flex justify-between items-center shrink-0">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-stone-300" />
-                  <div>
-                    <h4 className="font-serif text-sm font-light text-white">Rekapitulasi Tamu &amp; RSVP</h4>
-                    <p className="text-[9px] text-gray-400 font-sans uppercase tracking-wider">
-                      Data terekam secara lokal
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowAdminView(false)}
-                  className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-all cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="p-5 flex-1 flex flex-col overflow-hidden">
-                {/* Stats cards */}
-                <div className="grid grid-cols-3 gap-3 mb-5 text-center shrink-0">
-                  <div className="bg-stone-950 p-3 rounded-xl border border-white/5">
-                    <p className="text-[8px] text-gray-400 font-sans uppercase tracking-wider">Total Respon</p>
-                    <p className="text-lg font-serif text-stone-300 font-light mt-0.5">{rsvps.length}</p>
-                  </div>
-                  <div className="bg-stone-950 p-3 rounded-xl border border-white/5">
-                    <p className="text-[8px] text-gray-400 font-sans uppercase tracking-wider">Hadir (Sesi)</p>
-                    <p className="text-lg font-serif text-emerald-400 font-light mt-0.5">
-                      {rsvps.filter((r) => r.attendance === "Hadir").length}
-                    </p>
-                  </div>
-                  <div className="bg-stone-950 p-3 rounded-xl border border-white/5">
-                    <p className="text-[8px] text-gray-400 font-sans uppercase tracking-wider">Total Tamu (Pax)</p>
-                    <p className="text-lg font-serif text-blue-400 font-light mt-0.5">{totalGuests}</p>
-                  </div>
-                </div>
-
-                {/* List of RSVP submissions */}
-                <div className="flex-1 overflow-y-auto border border-white/10 rounded-xl bg-black/20 no-scrollbar">
-                  {rsvps.length === 0 ? (
-                    <p className="text-center py-12 text-xs text-gray-500 font-sans italic">
-                      Belum ada tamu yang mengonfirmasi kehadiran.
-                    </p>
-                  ) : (
-                    <table className="w-full text-left text-[11px] font-sans">
-                      <thead className="bg-stone-950 text-gray-400 uppercase text-[8px] tracking-wider border-b border-white/5 sticky top-0">
-                        <tr>
-                          <th className="px-4 py-2.5">Nama Tamu</th>
-                          <th className="px-4 py-2.5">Status</th>
-                          <th className="px-4 py-2.5 text-center">Pax</th>
-                          <th className="px-4 py-2.5">Catatan</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5 text-gray-300">
-                        {rsvps.map((r) => (
-                          <tr key={r.id} className="hover:bg-white/5">
-                            <td className="px-4 py-2.5 font-medium text-white">{r.name}</td>
-                            <td className="px-4 py-2.5">
-                              <span
-                                className={`px-2 py-0.5 rounded text-[8px] font-bold ${
-                                  r.attendance === "Hadir"
-                                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                    : "bg-red-500/10 text-red-400 border border-red-500/20"
-                                }`}
-                              >
-                                {r.attendance}
-                              </span>
-                            </td>
-                            <td className="px-4 py-2.5 text-center font-bold">
-                              {r.attendance === "Hadir" ? r.guestsCount : "-"}
-                            </td>
-                            <td className="px-4 py-2.5 text-gray-400 max-w-[120px] truncate" title={r.note}>
-                              {r.note || "-"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </div>
-
-              <div className="p-4 bg-stone-950 border-t border-white/10 shrink-0 flex justify-end">
-                <button
-                  onClick={() => setShowAdminView(false)}
-                  className="px-5 py-2 bg-stone-800 hover:bg-stone-700 text-white font-sans text-[9px] tracking-widest uppercase font-semibold rounded-sm transition-all cursor-pointer"
-                >
-                  SELESAI
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }

@@ -1,0 +1,111 @@
+{
+  "entities": {
+    "RSVP": {
+      "title": "RSVP",
+      "description": "RSVP confirmations from wedding guests",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "attendance": {
+          "type": "string"
+        },
+        "guestsCount": {
+          "type": "integer"
+        },
+        "note": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "attendance",
+        "guestsCount",
+        "timestamp"
+      ]
+    },
+    "Wish": {
+      "title": "Wish",
+      "description": "Wishes and congratulations from guests",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "relationship": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "relationship",
+        "message",
+        "timestamp"
+      ]
+    },
+    "Broadcast": {
+      "title": "Broadcast",
+      "description": "Auto broadcast invitations submitted by the owner",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "phone",
+        "status",
+        "timestamp"
+      ]
+    }
+  },
+  "firestore": {
+    "rsvps": {
+      "schema": "RSVP",
+      "description": "Collection of wedding guest RSVPs"
+    },
+    "wishes": {
+      "schema": "Wish",
+      "description": "Collection of wedding wishes"
+    },
+    "broadcasts": {
+      "schema": "Broadcast",
+      "description": "Collection of broadcast requests"
+    }
+  }
+}

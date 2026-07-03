@@ -19,7 +19,7 @@ export default function MusicPlayer({ isPlaying, setIsPlaying }: MusicPlayerProp
         onClick={togglePlay}
         id="btn-music-toggle"
         className="relative w-12 h-12 rounded-full backdrop-glass flex items-center justify-center shadow-lg border border-white/20 text-stone-200 focus:outline-none cursor-pointer"
-        title={isPlaying ? "Mute Music" : "Play Music"}
+        title={isPlaying ? "Senyapkan Musik" : "Putar Musik"}
       >
         <AnimatePresence mode="wait">
           {isPlaying ? (

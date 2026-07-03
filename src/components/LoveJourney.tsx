@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import introVideo from "../assets/Ubah_jadi_warna_hijau_itu_ka.mp4";
+import introVideo from "../assets/Ubah_warna_rumah_nya_jadi_warn.mp4";
 
 
 export default function LoveJourney() {
@@ -49,9 +49,9 @@ export default function LoveJourney() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="font-serif text-2xl md:text-3xl font-light tracking-wide text-white mb-8 leading-tight uppercase"
           >
-            THE JOURNEY OF
+            KISAH PERJALANAN
             <br />
-            TWO SOULS IN LOVE
+            DUA INSAN YANG SALING MENCINTAI
           </motion.h2>
 
           {/* Love Story Paragraph */}

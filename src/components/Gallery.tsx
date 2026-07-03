@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import img1 from "../assets/image1.png";
+import img2 from "../assets/image2.png";
+import img3 from "../assets/image3.png";
+import img4 from "../assets/image4.png";
+import img5 from "../assets/image5.png";
 
 interface GalleryImage {
   id: number;
@@ -11,33 +16,28 @@ interface GalleryImage {
 const galleryImages: GalleryImage[] = [
   {
     id: 1,
-    url: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800",
+    url: img1,
     caption: "Cinta Terpatri dalam Keheningan",
   },
   {
     id: 2,
-    url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=800",
+    url: img2,
     caption: "Langkah Bersama Menuju Masa Depan",
   },
   {
     id: 3,
-    url: "https://images.unsplash.com/photo-1519225495810-7512c696505a?auto=format&fit=crop&q=80&w=800",
+    url: img3,
     caption: "Senyuman Terindah di Hari Bahagia",
   },
   {
     id: 4,
-    url: "https://images.unsplash.com/photo-1532712938310-34cb3982ef74?auto=format&fit=crop&q=80&w=800",
+    url: img4,
     caption: "Dua Jiwa Satu Tujuan",
   },
   {
     id: 5,
-    url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&q=80&w=800",
+    url: img5,
     caption: "Saling Melengkapi Selamanya",
-  },
-  {
-    id: 6,
-    url: "https://images.unsplash.com/photo-1520854221256-17451cc35953?auto=format&fit=crop&q=80&w=800",
-    caption: "Dalam Dekapan Janji Suci",
   },
 ];
 
@@ -70,7 +70,7 @@ export default function Gallery() {
       x: 0,
       transition: {
         duration: 0.6,
-        ease: [0.16, 1, 0.3, 1], // easeOutExpo
+        ease: [0.16, 1, 0.3, 1] as any, // easeOutExpo
       },
     },
     exit: (dir: number) => ({
@@ -79,7 +79,7 @@ export default function Gallery() {
       x: dir < 0 ? 40 : -40,
       transition: {
         duration: 0.4,
-        ease: [0.16, 1, 0.3, 1],
+        ease: [0.16, 1, 0.3, 1] as any,
       },
     }),
   };

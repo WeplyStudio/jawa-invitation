@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import cover1 from "../assets/cover1.png";
 
 interface CoverProps {
   onOpen: () => void;
@@ -94,7 +95,7 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
             <div 
               className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
               style={{
-                backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75)), url('/src/assets/images/cover_studio_bw_1782905597635.jpg')`
+                backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75)), url('${cover1}')`
               }}
             />
 
@@ -106,7 +107,7 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
                 transition={{ delay: 0.2, duration: 0.8 }}
                 className="font-sans text-[10px] md:text-xs uppercase tracking-[0.3em] text-stone-300 font-semibold mb-3"
               >
-                WE INVITE YOU TO CELEBRATE
+                KAMI MENGUNDANG ANDA UNTUK MERAYAKAN
               </motion.p>
               
               <motion.h1
@@ -117,6 +118,15 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
               >
                 TIYAH &amp; PUGUH
               </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 0.8, y: 0 }}
+                transition={{ delay: 0.45, duration: 0.8 }}
+                className="font-serif italic text-xs md:text-sm text-stone-300 mt-2 tracking-wide font-light"
+              >
+                #sungGuhmencintaiMu
+              </motion.p>
 
               <motion.div 
                 initial={{ opacity: 0, scaleX: 0 }}
@@ -131,7 +141,7 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
                 transition={{ delay: 0.6, duration: 0.8 }}
                 className="font-sans text-[10px] md:text-xs tracking-[0.25em] uppercase text-stone-300 font-light"
               >
-                THURSDAY, 14 JANUARI 2027
+                KAMIS, 14 JANUARI 2027
               </motion.p>
             </div>
 
@@ -144,7 +154,7 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
                 transition={{ delay: 0.8, duration: 0.8 }}
                 className="font-signature text-4xl md:text-5xl text-stone-300 italic leading-none mb-1 select-none"
               >
-                Dear
+                Kepada Yth.
               </motion.p>
 
               <motion.p
@@ -162,7 +172,7 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
                 transition={{ delay: 1.0, duration: 0.8 }}
                 className="font-sans text-[10px] md:text-xs text-stone-300 font-light mb-8 leading-relaxed max-w-[260px]"
               >
-                We apologize if there is any misspelling of name or title
+                Mohon maaf apabila ada kesalahan penulisan nama atau gelar
               </motion.p>
 
               <motion.button
@@ -178,7 +188,7 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
                 id="btn-buka-undangan"
                 className="bg-white hover:bg-stone-200 text-stone-900 font-sans font-semibold text-[11px] tracking-[0.25em] px-10 py-4 rounded-sm shadow-2xl transition-all duration-300 cursor-pointer uppercase"
               >
-                LET'S OPEN
+                BUKA UNDANGAN
               </motion.button>
 
             </div>

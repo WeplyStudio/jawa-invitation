@@ -6,8 +6,8 @@ import fanImage from "../assets/images/wedding_fan_1782982225373.jpg";
 export default function GiftSection() {
   const [copied, setCopied] = useState(false);
   const accountNumber = "1323422894"; // Example
-  const bankName = "Bank";
-  const accountHolder = "Puguh & Tiyah";
+  const bankName = "BNI";
+  const accountHolder = "Tiyah Munti Rahayu";
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(accountNumber);
@@ -33,10 +33,10 @@ export default function GiftSection() {
           className="w-16 h-16 object-contain mb-4 mix-blend-screen"
         />
         <h2 className="font-serif text-2xl font-normal tracking-[0.15em] text-white mb-6 uppercase">
-          Wedding Gift
+          Kado Pernikahan
         </h2>
         <p className="font-sans text-xs leading-relaxed text-stone-300 font-light mb-10">
-          Your presence and prayers are the greatest gift for us. However, if you wish to send a gift, you may do so through the following options:
+          Doa restu Anda merupakan karunia terindah bagi kami. Namun, jika Anda ingin mengirimkan tanda kasih, Anda dapat melakukannya melalui pilihan di bawah ini:
         </p>
 
         {/* Bank Account */}
@@ -59,7 +59,7 @@ export default function GiftSection() {
           </div>
           {copied && (
             <p className="font-sans text-[9px] text-emerald-400 mt-2 uppercase tracking-widest">
-              Copied!
+              Tersalin!
             </p>
           )}
         </div>
@@ -72,7 +72,7 @@ export default function GiftSection() {
           className="inline-flex items-center gap-2 px-8 py-3 bg-white text-stone-900 font-sans text-xs tracking-widest uppercase font-semibold rounded-full hover:bg-stone-200 transition-all"
         >
           <Gift className="w-4 h-4" />
-          Send Digital Gift
+          Kirim Kado Digital
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
       </motion.div>

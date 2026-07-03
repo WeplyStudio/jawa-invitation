@@ -15,3 +15,11 @@ export interface RSVP {
   note?: string;
   timestamp: string;
 }
+
+export interface Broadcast {
+  id: string;
+  name: string;
+  phone: string;
+  status: 'Belum Dikirim' | 'Sudah Dikirim';
+  timestamp: string;
+}
