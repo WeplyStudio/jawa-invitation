@@ -1,6 +1,21 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import cover1 from "../assets/cover1.png";
+import cover2 from "../assets/cover2.png";
+import groomImg from "../assets/groom.jpg";
+import brideImg from "../assets/bride.jpg";
+import fanImage from "../assets/images/wedding_fan_1782982225373.jpg";
+import g1 from "../assets/1000397447.png";
+import g2 from "../assets/1000397450.png";
+import g3 from "../assets/1000397451.png";
+import g4 from "../assets/1000397452.png";
+import g5 from "../assets/1000397477.png";
+import g6 from "../assets/1000397527.png";
+import img1 from "../assets/image1.png";
+import img2 from "../assets/image2.png";
+import img3 from "../assets/image3.png";
+import img4 from "../assets/image4.png";
+import img5 from "../assets/image5.png";
 
 interface CoverProps {
   onOpen: () => void;
@@ -10,6 +25,9 @@ interface CoverProps {
 export default function Cover({ onOpen, onStartAudio }: CoverProps) {
   const [phase, setPhase] = useState<'splash' | 'cover' | 'fanOpening'>('splash');
   const [guestName, setGuestName] = useState("Nama Tamu");
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [loadingComplete, setLoadingComplete] = useState(false);
+  const [minimumTimeElapsed, setMinimumTimeElapsed] = useState(false);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -19,12 +37,75 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
     }
   }, []);
 
+  // Preload all assets in parallel
+  useEffect(() => {
+    const assets = [
+      cover1,
+      cover2,
+      groomImg,
+      brideImg,
+      fanImage,
+      g1,
+      g2,
+      g3,
+      g4,
+      g5,
+      g6,
+      img1,
+      img2,
+      img3,
+      img4,
+      img5,
+      "https://i.ibb.co.com/n8skQqjh/Desain-tanpa-judul-1.png",
+      "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1600",
+      "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&q=80&w=1600",
+      "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=1200",
+      "https://images.unsplash.com/photo-1519225495810-7512c696505a?auto=format&fit=crop&q=80&w=1600",
+      "https://images.unsplash.com/photo-1520854221256-17451cc35953?auto=format&fit=crop&q=80&w=1600",
+      "https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?auto=format&fit=crop&q=80&w=1600",
+      "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=1000"
+    ];
+
+    let loadedCount = 0;
+    const totalAssets = assets.length;
+
+    if (totalAssets === 0) {
+      setLoadingComplete(true);
+      setLoadProgress(100);
+      return;
+    }
+
+    const onAssetLoaded = () => {
+      loadedCount++;
+      const percent = Math.round((loadedCount / totalAssets) * 100);
+      setLoadProgress(percent);
+      if (loadedCount >= totalAssets) {
+        setLoadingComplete(true);
+      }
+    };
+
+    assets.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = onAssetLoaded;
+      img.onerror = onAssetLoaded; // Count error as loaded to prevent lockup
+    });
+  }, []);
+
+  // Enforce a minimum display time for the beautiful splash screen (e.g. 2500ms)
   useEffect(() => {
     const timer = setTimeout(() => {
-      setPhase('cover');
+      setMinimumTimeElapsed(true);
     }, 2500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Change phase only when both the progress is done and the minimum time has elapsed
+  useEffect(() => {
+    if (minimumTimeElapsed && loadingComplete) {
+      setPhase('cover');
+    }
+  }, [minimumTimeElapsed, loadingComplete]);
 
   useEffect(() => {
     if (phase === 'fanOpening') {
@@ -50,7 +131,7 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8 }}
-            className="absolute inset-0 bg-[#1a2e23] flex items-center justify-center z-50 px-6"
+            className="absolute inset-0 bg-[#1a2e23] flex flex-col items-center justify-center z-50 px-6 gap-6"
           >
             <motion.h1
               initial={{ opacity: 0, y: 15 }}
@@ -60,6 +141,24 @@ export default function Cover({ onOpen, onStartAudio }: CoverProps) {
             >
               Munti &amp; Puguh
             </motion.h1>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+              className="flex flex-col items-center gap-3 w-full max-w-xs"
+            >
+              <div className="w-48 h-[1px] bg-white/10 rounded-full overflow-hidden relative">
+                <motion.div
+                  className="h-full bg-stone-300 absolute left-0 top-0"
+                  style={{ width: `${loadProgress}%` }}
+                  transition={{ ease: "easeOut", duration: 0.3 }}
+                />
+              </div>
+              <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-stone-400">
+                Memuat Undangan {loadProgress}%
+              </span>
+            </motion.div>
           </motion.div>
         ) : phase === 'fanOpening' ? (
           <motion.div
