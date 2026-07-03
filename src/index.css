@@ -19,6 +19,16 @@
   --color-forest-green-900: #1a2e23;
 }
 
+/* Disable selection and image drag globally */
+body {
+  user-select: none;
+}
+
+img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
 /* Custom scroll snap styling utility */
 .scroll-container {
   scroll-snap-type: y mandatory;

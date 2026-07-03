@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, ChevronLeft, ChevronRight, Heart, Download } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import img1 from "../assets/image1.png";
 import img2 from "../assets/image2.png";
 import img3 from "../assets/image3.png";
@@ -56,16 +56,6 @@ export default function Gallery() {
     e.stopPropagation();
     setDirection(1);
     setCurrentIndex((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
-  };
-
-  const handleDownload = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const link = document.createElement("a");
-    link.href = galleryImages[currentIndex].url;
-    link.download = `photo_${currentIndex + 1}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const transitionVariants = {
@@ -161,13 +151,6 @@ export default function Gallery() {
           >
             {/* Action Buttons */}
             <div className="absolute top-6 right-6 flex gap-2 z-50">
-              <button
-                onClick={handleDownload}
-                className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer"
-                title="Download"
-              >
-                <Download className="w-5 h-5" />
-              </button>
               <button
                 onClick={() => setIsLightboxOpen(false)}
                 className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer"
